@@ -1,7 +1,114 @@
-const axios = require('axios');
-const fs = require('fs');
-require('dotenv').config();
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VaniVoice Typing</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f6f9;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+        }
+        .container {
+            width: 100%;
+            max-width: 400px;
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+            text-align: center;
+        }
+        h2 { color: #333; margin-bottom: 10px; }
+        textarea {
+            width: 100%;
+            height: 150px;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            resize: none;
+            font-size: 16px;
+            box-sizing: border-box;
+            margin-bottom: 15px;
+        }
+        button {
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            font-size: 16px;
+            border-radius: 8px;
+            cursor: pointer;
+            width: 100%;
+        }
+        button:active { background-color: #45a049; }
+        .status { font-size: 14px; color: #666; margin-top: 10px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>VaniVoice Typing</h2>
+        <textarea id="textBox" placeholder="Speak or type here..."></textarea>
+        <button id="micBtn" onclick="toggleSpeech()">🎤 Start Speaking</button>
+        <div class="status" id="statusText">Tap to start voice typing</div>
+    </div>
 
-console.log("Groq Whisper API script ready for audio transcription.");
+    <script>
+        let recognizing = false;
+        const micBtn = document.getElementById('micBtn');
+        const textBox = document.getElementById('textBox');
+        const statusText = document.getElementById('statusText');
 
+        const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+        if (SpeechRecognition) {
+            const recognition = new SpeechRecognition();
+            recognition.continuous = true;
+            recognition.interimResults = true;
+            recognition.lang = 'bn-BD';
 
+            recognition.onstart = function() {
+                recognizing = true;
+                micBtn.style.backgroundColor = '#f44336';
+                micBtn.innerText = '🛑 Stop Speaking';
+                statusText.innerText = 'Listening... Speak now.';
+            };
+
+            recognition.onresult = function(event) {
+                let transcript = '';
+                for (let i = event.resultIndex; i < event.results.length; ++i) {
+                    transcript += event.results[i][0].transcript;
+                }
+                textBox.value = transcript;
+            };
+
+            recognition.onerror = function(event) {
+                statusText.innerText = 'Error occurred: ' + event.error;
+            };
+
+            recognition.onend = function() {
+                recognizing = false;
+                micBtn.style.backgroundColor = '#4CAF50';
+                micBtn.innerText = '🎤 Start Speaking';
+                statusText.innerText = 'Tap to start voice typing';
+            };
+
+            window.toggleSpeech = function() {
+                if (recognizing) {
+                    recognition.stop();
+                } else {
+                    recognition.start();
+                }
+            };
+        } else {
+            micBtn.style.display = 'none';
+            statusText.innerText = 'Speech Recognition is not supported on this browser/device.';
+        }
+    </script>
+</body>
+</html>
