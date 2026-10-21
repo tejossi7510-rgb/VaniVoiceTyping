@@ -21,6 +21,8 @@ jobs:
           npx cap init VaniVoice com.vanivoice.app --web-dir www --yes || true
           mkdir -p www && cp index.js www/index.html 2>/dev/null || touch www/index.html
           npx cap add android || true
+          mkdir -p android/capacitor-cordova-android-plugins
+          touch android/capacitor-cordova-android-plugins/cordova.variables.gradle
           cd android
           ./gradlew assembleDebug
       - name: Upload APK
