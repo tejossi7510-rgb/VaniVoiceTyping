@@ -27,7 +27,8 @@ jobs:
           elif [ ! -f www/index.html ]; then
             echo '<html><body><h1>VaniVoice</h1></body></html>' > www/index.html
           fi
-          npx cap init VaniVoice com.vanivoice.app --web-dir www
+          npx cap init VaniVoice com.vanivoice.app --web-dir www --yes || true
+          rm -rf android
           npx cap add android
 
       - name: Build Android APK
