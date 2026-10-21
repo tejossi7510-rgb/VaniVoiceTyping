@@ -17,37 +17,40 @@ jobs:
         with:
           node-version: '22'
 
-      - name: Setup Web Directory & Capacitor
+      - name: Install Dependencies
         run: |
           npm install
           npm install @capacitor/core @capacitor/cli @capacitor/android
+
+      - name: Prepare Web Assets
+        run: |
           mkdir -p www
           if [ -f index.js ]; then
             cp index.js www/index.html
           elif [ ! -f www/index.html ]; then
             echo '<html><body><h1>VaniVoice</h1></body></html>' > www/index.html
           fi
-          
-          # Create valid capacitor config json directly
+
+      - name: Setup Capacitor Config & Sync
+        run: |
           cat << 'CONF' > capacitor.config.json
           {
             "appId": "com.vanivoice.app",
             "appName": "VaniVoice",
-            "webDir": "www",
-            "bundledWebRuntime": false
+            "webDir": "www"
           }
           CONF
-          
           rm -rf android
-          npx cap add android
+          npx cap add android || true
+          npx cap sync android
 
       - name: Build Android APK
         run: |
           cd android
           chmod +x gradlew
-          ./gradlew assembleDebug
+          ./gradlew assembleDebug --no-daemon
 
-      - name: Upload APK
+      - name: Upload APK Artifact
         uses: actions/upload-artifact@v4
         with:
           name: app-debug
