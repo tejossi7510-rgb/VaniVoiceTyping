@@ -15,9 +15,9 @@ jobs:
       - name: Install Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '22'
+          node-version: '20'
 
-      - name: Install Dependencies & Prepare Assets
+      - name: Setup Web Directory & Capacitor
         run: |
           npm install
           npm install @capacitor/core @capacitor/cli @capacitor/android
@@ -27,13 +27,8 @@ jobs:
           elif [ ! -f www/index.html ]; then
             echo '<html><body><h1>VaniVoice</h1></body></html>' > www/index.html
           fi
-
-      - name: Sync Capacitor & Fix Cordova Module
-        run: |
-          npx cap sync android || npx cap add android
-          if [ -f android/settings.gradle ]; then
-            sed -i "/capacitor-cordova-android-plugins/d" android/settings.gradle
-          fi
+          npx cap init VaniVoice com.vanivoice.app --web-dir www
+          npx cap add android
 
       - name: Build Android APK
         run: |
