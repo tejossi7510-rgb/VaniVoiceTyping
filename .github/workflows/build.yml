@@ -27,7 +27,17 @@ jobs:
           elif [ ! -f www/index.html ]; then
             echo '<html><body><h1>VaniVoice</h1></body></html>' > www/index.html
           fi
-          npx cap init VaniVoice com.vanivoice.app --web-dir www --yes || true
+          
+          # Create valid capacitor config json directly
+          cat << 'CONF' > capacitor.config.json
+          {
+            "appId": "com.vanivoice.app",
+            "appName": "VaniVoice",
+            "webDir": "www",
+            "bundledWebRuntime": false
+          }
+          CONF
+          
           rm -rf android
           npx cap add android
 
